@@ -112,10 +112,10 @@ impl Hosts {
         self.record.iter()
     }
 
-    pub fn get(&self, domain: &str) -> Option<&IpAddr> {
+    pub fn get(&self, domain: &str) -> Option<IpAddr> {
         for (reg, ip) in &self.record {
             if reg.is_match(domain) {
-                return Some(ip);
+                return Some(*ip);
             }
         }
         None

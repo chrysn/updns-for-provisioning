@@ -237,7 +237,7 @@ async fn get_answer(domain: &str, query: QueryType) -> Option<DnsRecord> {
                 if let IpAddr::V4(addr) = ip {
                     return Some(DnsRecord::A {
                         domain: domain.to_string(),
-                        addr: *addr,
+                        addr: addr,
                         ttl: 3600,
                     });
                 }
@@ -246,7 +246,7 @@ async fn get_answer(domain: &str, query: QueryType) -> Option<DnsRecord> {
                 if let IpAddr::V6(addr) = ip {
                     return Some(DnsRecord::AAAA {
                         domain: domain.to_string(),
-                        addr: *addr,
+                        addr: addr,
                         ttl: 3600,
                     });
                 }
