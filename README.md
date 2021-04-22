@@ -1,3 +1,22 @@
+# Fork metadata
+
+This version of updns is being bashed into a server suitable to play a part in
+<https://github.com/chrysn/provisioning-demo>.
+
+Short of trivial fixes (which may be cherry-picked), it is not expected that
+any of this makes sense to propose for upstreaming into updns; most changes
+will add hard-coded behavior. On the long run, it is open whether a later
+production ready equivalent of the current demo will better be based on this
+updns fork (with most components, including upstreaming and explicit
+configuration, being stripped out), or whether a new component will be
+developed from scratch -- but for now, adding a few hard-coded paths into updns
+seems to be most practical.
+
+---
+
+What follows is the original README file of updns.
+
+---
 
 
 # updns
