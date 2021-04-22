@@ -30,3 +30,8 @@ lazy_static = "1.4.0"
 logs = "0.4.0"
 regex = "1.4.4"
 tokio = { version = "1.3.0", features = ["rt-multi-thread", "macros", "fs", "io-util", "net", "time", "sync"] }
+data-encoding = "2"
+
+[[bin]]
+name = "convert"
+path = "src/convert.rs"
