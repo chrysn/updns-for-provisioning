@@ -113,6 +113,15 @@ impl Hosts {
     }
 
     pub fn get(&self, domain: &str) -> Option<IpAddr> {
+        if let Some(prefix) = domain.split(".at.").next() {
+            use std::convert::TryInto;
+            // resolving as base32 IPv6 address b/c that's what fits easily in a 63byte component
+            let address = data_encoding::BASE32_DNSSEC.decode(prefix.as_bytes()).ok()?;
+            let address: [u8; 16] = address.try_into().ok()?;
+            let address: std::net::Ipv6Addr = address.try_into().ok()?;
+
+            return Some(address.into());
+        }
         for (reg, ip) in &self.record {
             if reg.is_match(domain) {
                 return Some(*ip);
