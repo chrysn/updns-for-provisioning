@@ -325,6 +325,7 @@ pub enum QueryType {
     CNAME, // 5
     MX,    // 15
     AAAA,  // 28
+    TXT,   // 16
 }
 
 impl QueryType {
@@ -336,6 +337,7 @@ impl QueryType {
             QueryType::CNAME => 5,
             QueryType::MX => 15,
             QueryType::AAAA => 28,
+            QueryType::TXT => 16,
         }
     }
 
@@ -346,6 +348,7 @@ impl QueryType {
             5 => QueryType::CNAME,
             15 => QueryType::MX,
             28 => QueryType::AAAA,
+            16 => QueryType::TXT,
             _ => QueryType::UNKNOWN(num),
         }
     }
@@ -419,6 +422,11 @@ pub enum DnsRecord {
         addr: Ipv6Addr,
         ttl: u32,
     }, // 28
+    TXT {
+        domain: String,
+        txt: Vec<u8>,
+        ttl: u32,
+    }
 }
 
 impl DnsRecord {
@@ -499,6 +507,19 @@ impl DnsRecord {
                     domain: domain,
                     priority: priority,
                     host: mx,
+                    ttl: ttl,
+                })
+            }
+            QueryType::TXT => {
+                let mut txt = Vec::new();
+                // inefficient but works
+                while let Ok(c) = buffer.read() {
+                    txt.push(c);
+                }
+
+                Ok(DnsRecord::TXT {
+                    domain: domain,
+                    txt: txt,
                     ttl: ttl,
                 })
             }
@@ -605,6 +626,24 @@ impl DnsRecord {
 
                 for octet in &addr.segments() {
                     buffer.write_u16(*octet)?;
+                }
+            }
+            DnsRecord::TXT {
+                ref domain,
+                ref txt,
+                ttl,
+            } => {
+                // Could be replaced by the two u8 0xc0 0c02 whatever that means, probably "as you
+                // requested" (but nothing else here does that)
+                buffer.write_qname(domain)?;
+                buffer.write_u16(QueryType::TXT.to_num())?;
+                buffer.write_u16(1)?;
+                buffer.write_u32(ttl)?;
+                buffer.write_u16((txt.len() + 1) as _)?;
+                // inefficient but works now
+                buffer.write_u8(txt.len() as _)?;
+                for &c in txt {
+                    buffer.write_u8(c)?;
                 }
             }
             DnsRecord::UNKNOWN { .. } => {
