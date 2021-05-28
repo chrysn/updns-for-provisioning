@@ -3,6 +3,10 @@
 fn main() {
     let ip = std::env::args().nth(1).expect("Please give an IP address as an argument");
 
-    let ip: std::net::Ipv6Addr = ip.parse().expect("Failed to parse");
-    println!("{}.at.hex-key.example.com", data_encoding::BASE32_DNSSEC.encode(&ip.octets()));
+    let ip: std::net::IpAddr = ip.parse().expect("Failed to parse");
+    let octets = match ip {
+        std::net::IpAddr::V4(i) => (&i.octets()[..]).to_owned(),
+        std::net::IpAddr::V6(i) => (&i.octets()[..]).to_owned(),
+    };
+    println!("at-{}.at.hex-key.example.com", data_encoding::BASE32_DNSSEC.encode(&octets));
 }

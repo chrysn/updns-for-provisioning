@@ -113,14 +113,23 @@ impl Hosts {
     }
 
     pub fn get(&self, domain: &str) -> Option<IpAddr> {
-        if let Some(prefix) = domain.split(".at.").next() {
-            use std::convert::TryInto;
+        if domain.starts_with("at-") {
+            use std::convert::{TryFrom, TryInto};
+            let prefix = &domain[3..domain.find(".")?];
+
             // resolving as base32 IPv6 address b/c that's what fits easily in a 63byte component
             let address = data_encoding::BASE32_DNSSEC.decode(prefix.as_bytes()).ok()?;
-            let address: [u8; 16] = address.try_into().ok()?;
-            let address: std::net::Ipv6Addr = address.try_into().ok()?;
+            if let Ok(address) = <[u8; 16]>::try_from(address.clone()) {
+                let address: std::net::Ipv6Addr = address.try_into().ok()?;
 
-            return Some(address.into());
+                return Some(address.into());
+            }
+            if let Ok(address) = <[u8; 4]>::try_from(address) {
+                let address: std::net::Ipv4Addr = address.try_into().ok()?;
+
+                return Some(address.into());
+            }
+            // Fallback, at this stage, is just to forward (which means not found in practice)
         }
         for (reg, ip) in &self.record {
             if reg.is_match(domain) {
