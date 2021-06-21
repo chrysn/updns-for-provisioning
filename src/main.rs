@@ -273,21 +273,17 @@ async fn handle(mut req: BytePacketBuffer, len: usize) -> Result<Vec<u8>> {
 
     let query = match request.questions.get(0) {
         Some(q) => q,
-        None => return proxy(&req.buf[..len]).await,
+        None => panic!("Why would there ever be no question? (And why is relaying it upstream the default behavior?)"),
     };
 
     info!("{} {:?}", query.name, query.qtype);
 
-    // Whether to proxy
-    let answer = match get_answer(&query.name, query.qtype).await {
-        Some(record) => record,
-        None => return proxy(&req.buf[..len]).await,
-    };
-
     request.header.recursion_desired = true;
     request.header.recursion_available = true;
     request.header.response = true;
-    request.answers.push(answer);
+    if let Some(answer) = get_answer(&query.name, query.qtype).await {
+        request.answers.push(answer);
+    }
     let mut res_buffer = BytePacketBuffer::new();
     request.write(&mut res_buffer)?;
 
