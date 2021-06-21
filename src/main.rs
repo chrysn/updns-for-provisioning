@@ -234,12 +234,12 @@ async fn get_answer(domain: &str, query: QueryType) -> Option<DnsRecord> {
     if domain.starts_with("_acme-challenge.") && query == QueryType::TXT {
         // Something about this is malformed according to wireshark, but everyone eats it. could be
         // related to the OPT record queried along.
-        let key = dbg!(std::fs::read("/tmp/token")).ok()?;
-        return Some(dbg!(DnsRecord::TXT {
+        let key = std::fs::read("/tmp/token").ok()?;
+        return Some(DnsRecord::TXT {
             domain: domain.to_string(),
             txt: key,
             ttl: 20,
-        }));
+        });
     }
 
     if let Some(ip) = HOSTS.read().await.get(domain) {
