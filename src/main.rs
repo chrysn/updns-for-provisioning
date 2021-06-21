@@ -27,7 +27,7 @@ use watch::Watch;
 
 const CONFIG_FILE: [&str; 2] = [".updns", "config"];
 const WATCH_INTERVAL: Duration = Duration::from_millis(5000);
-const DEFAULT_BIND: &str = "0.0.0.0:53";
+const DEFAULT_BIND: &str = "[::]:53";
 const DEFAULT_PROXY: [&str; 2] = ["8.8.8.8:53", "1.1.1.1:53"];
 const DEFAULT_TIMEOUT: Duration = Duration::from_millis(2000);
 
