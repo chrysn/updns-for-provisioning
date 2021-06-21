@@ -646,8 +646,11 @@ impl DnsRecord {
                     buffer.write_u8(c)?;
                 }
             }
-            DnsRecord::UNKNOWN { .. } => {
-                logs::warn!("Skipping record: {:?}", self);
+            DnsRecord::UNKNOWN { qtype, .. } => {
+                match qtype {
+                    41 => logs::info!("Ignoring OPT request"), // we're not conforming to RFC6891 and that's probably fine.
+                    _ => logs::warn!("Skipping record: {:?}", self),
+                }
             }
         }
 
