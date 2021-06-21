@@ -8,5 +8,5 @@ fn main() {
         std::net::IpAddr::V4(i) => (&i.octets()[..]).to_owned(),
         std::net::IpAddr::V6(i) => (&i.octets()[..]).to_owned(),
     };
-    println!("at-{}.at.hex-key.example.com", data_encoding::BASE32_DNSSEC.encode(&octets));
+    println!("at-{}.hex-key.example.com", data_encoding::BASE32_DNSSEC.encode(&octets));
 }
