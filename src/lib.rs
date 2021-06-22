@@ -326,6 +326,7 @@ pub enum QueryType {
     MX,    // 15
     AAAA,  // 28
     TXT,   // 16
+    OPT,   // 41
 }
 
 impl QueryType {
@@ -338,6 +339,7 @@ impl QueryType {
             QueryType::MX => 15,
             QueryType::AAAA => 28,
             QueryType::TXT => 16,
+            QueryType::OPT => 41,
         }
     }
 
@@ -349,6 +351,7 @@ impl QueryType {
             15 => QueryType::MX,
             28 => QueryType::AAAA,
             16 => QueryType::TXT,
+            41 => QueryType::OPT,
             _ => QueryType::UNKNOWN(num),
         }
     }
@@ -426,7 +429,8 @@ pub enum DnsRecord {
         domain: String,
         txt: Vec<u8>,
         ttl: u32,
-    }
+    },
+    OPT, // dumbest-possible: nothing parsed out, and only producing an as-good-as-noop record
 }
 
 impl DnsRecord {
@@ -522,6 +526,10 @@ impl DnsRecord {
                     txt: txt,
                     ttl: ttl,
                 })
+            }
+            QueryType::OPT => {
+                // Ignoring content
+                Ok(DnsRecord::OPT)
             }
             QueryType::UNKNOWN(_) => {
                 buffer.step(data_len as usize)?;
@@ -645,6 +653,14 @@ impl DnsRecord {
                 for &c in txt {
                     buffer.write_u8(c)?;
                 }
+            }
+            DnsRecord::OPT => {
+                // buffer.write_qname("")?; produces two "00" ?
+                buffer.write_u8(0)?;
+                buffer.write_u16(QueryType::OPT.to_num())?;
+                buffer.write_u16(1232)?; // found in knot responses
+                buffer.write_u32(0)?; // found in knot responses
+                buffer.write_u16(0)?; // no further data; found in knot responses
             }
             DnsRecord::UNKNOWN { qtype, .. } => {
                 match qtype {
