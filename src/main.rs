@@ -278,8 +278,7 @@ async fn handle(mut req: BytePacketBuffer, len: usize) -> Result<Vec<u8>> {
 
     info!("{} {:?}", query.name, query.qtype);
 
-    request.header.recursion_desired = true;
-    request.header.recursion_available = true;
+    request.header.authoritative_answer = true;
     request.header.response = true;
     if let Some(answer) = get_answer(&query.name, query.qtype).await {
         request.answers.push(answer);
